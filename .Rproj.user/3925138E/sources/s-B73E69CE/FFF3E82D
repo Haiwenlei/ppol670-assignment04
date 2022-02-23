@@ -3,9 +3,9 @@
     "path": "C:/Users/Haiwen/Desktop/R/assignment 4/index.Rmd",
     "project_path": "index.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "108085525",
     "contents": "",
-    "dirty": false,
+    "dirty": true,
     "created": 1645640544761.0,
     "source_on_save": false,
     "relative_order": 1,
@@ -13,7 +13,7 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "5,1",
+        "cursorPosition": "27,29",
         "scrollLine": "0"
     },
     "folds": "",
@@ -21,7 +21,7 @@
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1645647785453,
+    "last_content_update": 1645651162232,
     "read_only": false,
     "read_only_alternatives": []
 }

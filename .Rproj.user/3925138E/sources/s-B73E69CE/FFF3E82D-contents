@@ -21,7 +21,13 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 #source of data 
 [IPUMS CPS](https://cps.ipums.org/cps/)
 
+```{r}
+library(ggplot2)
+library(tidyverse)
+ddi <- read_ipums_ddi("cps_00002.xml")
+data <- read_ipums_micro(ddi)
 
+```
 
 
 
