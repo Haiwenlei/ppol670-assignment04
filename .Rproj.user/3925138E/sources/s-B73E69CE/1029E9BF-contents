@@ -1,0 +1,261 @@
+---
+title: "Data Science for Public Policy"
+author: "Haiwen Lei - hl865"
+output: 
+  pdf_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+```
+
+```{r include = FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+
+```
+
+\begin{center}
+\Huge{PPOL 670 | Assignment 3}
+
+\Huge{Applied Introduction to R's Tidyverse}
+\end{center}
+
+\vspace{0.1in}
+
+```{r}
+library(tidyverse)
+library(ipumsr)
+library(srvyr)
+library(haven)
+library(ggplot2)
+
+```
+
+
+# Exercise 01 (1 point)
+
+```{r}
+library(ipumsr)
+library(tidyverse)
+ddi <- read_ipums_ddi("cps_00001.xml")
+data <- read_ipums_micro(ddi)
+glimpse(data)
+```
+
+\newpage
+
+# Exercise 02 (2 points)
+```{r}
+#2
+library(srvyr)
+cps_svy <- data %>%
+  as_survey_design( weights = WTFINL)
+
+#3
+class(data)
+class(cps_svy)
+#universe of UHRSWORKT: Civilians age 15+ who are employed and either at work or absent from work during the survey week.
+#universe of AHRSWORKT : 1962-1988 (ASEC): Civilians age 14+, at work last week (pre-1968 samples do not include persons under age 14).1989+: Civilians age 15+, at work last week.
+# values for NIU is 999.   
+
+#4
+cps_svy %>%
+group_by(UHRSWORKT) %>%
+  filter(UHRSWORKT == 999 & YEAR == 2020)%>%
+  summarize( 
+n = unweighted(n())
+)
+
+cps_svy %>%
+group_by(UHRSWORKT) %>%
+  filter(UHRSWORKT == 999 & YEAR == 2021)%>%
+  summarize( 
+n = unweighted(n())
+)
+
+cps_svy %>%
+group_by(AHRSWORKT) %>%
+  filter(AHRSWORKT == 999 & YEAR == 2020)%>%
+  summarize( 
+n = unweighted(n())
+)
+
+cps_svy %>%
+group_by(AHRSWORKT) %>%
+  filter(AHRSWORKT == 999 & YEAR == 2021)%>%
+  summarize( 
+n = unweighted(n())
+)
+
+#5 
+cps_subset_svy <- cps_svy %>%
+  group_by(UHRSWORKT) %>%
+  filter(UHRSWORKT < 999) %>%
+  summarize( 
+n = unweighted(n())
+)
+
+#6
+#997 = Hours vary
+cps_subset_svy %>%
+  filter(UHRSWORKT < 997) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = UHRSWORKT, y = n))
+#7
+cps_svy %>%
+  filter(UHRSWORKT < 997 & YEAR == 2020)%>%
+  summarize(mean(UHRSWORKT))
+
+cps_svy %>%
+  filter(UHRSWORKT < 997 & YEAR == 2021)%>%
+  summarize(mean(UHRSWORKT))
+
+#8 
+cps_svy %>%
+  filter(YEAR == 2021 & UHRSWORKT < 997) %>%
+  mutate(hours40 = if_else(UHRSWORKT == 40, 1,0)) %>%
+  summarise(survey_mean(hours40))
+
+#9
+dat <- data %>%
+  mutate(
+    compare = case_when(
+      AHRSWORKT < UHRSWORKT ~ "work less",
+      AHRSWORKT == UHRSWORKT ~ "work the same",
+      TRUE ~ "work more",
+    )
+  ) 
+
+prop.table(table(dat$YEAR, dat$compare), 1)
+
+
+
+```
+\newpage
+
+# Exercise 03 (2 points)
+```{r}
+#2 
+cps_svy %>% 
+  group_by(YEAR)%>%
+  filter(AGE >= 16) %>%
+ survey_count()
+
+#3 
+cps_svy %>% 
+  mutate(labor_force = if_else(LABFORCE == 2, 1, 0)) %>%
+  mutate(employed = if_else(EMPSTAT == 1|EMPSTAT ==10|EMPSTAT ==12, 1, 0))  %>% 
+  mutate(unemployed = if_else(EMPSTAT == 21|EMPSTAT ==22, 1, 0))
+  
+#4 
+cps_svy %>%
+   group_by(YEAR) %>% 
+  filter (AGE >= 16 & POPSTAT == 1) %>%
+   mutate(labor_force = if_else(LABFORCE == 2, 1, 0)) %>%
+   summarize(labor_force = survey_total(labor_force == 1)) 
+  
+ cps_svy %>%
+  group_by(YEAR) %>% 
+  filter (AGE >= 16 & POPSTAT == 1) %>% 
+   mutate(employed = if_else(EMPSTAT == 1|EMPSTAT ==10|EMPSTAT ==12, 1, 0)) %>%
+  summarize(employed = survey_total(employed == 1)) 
+
+cps_svy %>%
+  group_by(YEAR) %>% 
+  filter (AGE >= 16 & POPSTAT == 1) %>% 
+  mutate(unemployed = if_else(EMPSTAT == 21|EMPSTAT ==22, 1, 0)) %>%
+  summarize(unemployed = survey_total(unemployed == 1))
+  
+
+
+
+```
+\newpage
+
+# Exercise 04 (2 points)
+```{r}
+library(haven)
+ddi <- read_ipums_ddi("cps_00001.xml")
+cps_2021 <- read_ipums_micro(ddi) %>%
+  filter(YEAR == 2021)
+
+nber <- read_dta("cpsb202104.dta") %>%
+  select(hufinal,pwcmpwgt )
+
+nber %>% 
+  summarize(n())
+cps_2021 %>% 
+  summarize(n())
+
+dt <- nber %>%
+  filter(hufinal < 205)
+nber <- dt
+summarise (nber, n()) == summarise(cps_2021, n())
+
+nber_cps <- bind_cols(cps_2021, nber)
+
+dt2 <- nber_cps %>%
+  mutate(pwcmpwgt = pwcmpwgt/10000)
+nber_cps <- dt2
+
+nber_cps_svy <- nber_cps %>%
+  as_survey_design(weight = pwcmpwgt)
+
+nber_cps_svy %>%
+  mutate(labor_force = if_else(LABFORCE ==2, 1, 0))%>%
+  mutate(employed = if_else(EMPSTAT == 1|EMPSTAT ==10|EMPSTAT ==12, 1, 0))%>%
+  mutate(unemployed = if_else(EMPSTAT == 21|EMPSTAT == 22, 1, 0))
+
+
+nber_cps_svy %>%
+ filter(AGE>15 & POPSTAT ==1)%>%
+  group_by(YEAR)%>%
+  mutate(labor_force = if_else(LABFORCE ==2, 1, 0))%>%
+  summarise(labor_force = survey_total(labor_force ==1))
+
+nber_cps_svy%>%
+  mutate(employed = if_else(EMPSTAT == 1|EMPSTAT ==10|EMPSTAT ==12, 1, 0))%>%
+  filter(AGE>15 & POPSTAT ==1)%>%
+  group_by(YEAR)%>%
+  summarise(employed = survey_total(employed ==1))
+
+nber_cps_svy%>%
+  mutate(unemployed = if_else(EMPSTAT == 21|EMPSTAT == 22, 1, 0))%>%
+  filter(AGE>15 & POPSTAT ==1)%>%
+  group_by(YEAR)%>%
+  summarise(unemployed =survey_total(unemployed ==1))
+
+
+  
+```
+\newpage
+
+# Exercise 05 (2 points)
+```{r}
+library(ggplot2)
+data %>%
+  filter(UHRSWORKT < 997) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = AGE, y = UHRSWORKT))+
+  labs(title = "Total hours worked per week by age in 2020 and 2021",
+       subtitle = "plot working hours by age", 
+       caption = "data source:IPUMS CPS") +
+  ylab("Total hours usualy worked per week")+
+  facet_wrap(~ YEAR)
+ 
+  
+
+ 
+  
+
+  
+
+
+```
