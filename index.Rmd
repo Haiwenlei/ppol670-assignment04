@@ -23,6 +23,7 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 [IPUMS CPS](https://cps.ipums.org/cps/)
 
 ```{r}
+#loading packages and data 
 library(ggplot2)
 library (tidyverse)
 library(ipumsr)
