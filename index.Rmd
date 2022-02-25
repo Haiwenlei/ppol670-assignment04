@@ -22,6 +22,11 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 #source of data 
 [IPUMS CPS](https://cps.ipums.org/cps/)
 
+
+#SSH screenshot 
+![SSH](stretch part1 .jpg)
+
+
 ```{r}
 #loading packages and data 
 library(ggplot2)
@@ -33,8 +38,13 @@ data <- read_ipums_micro(ddi)
 ```
 
 
+```{r}
 
 
+
+
+
+```
 
 
 
