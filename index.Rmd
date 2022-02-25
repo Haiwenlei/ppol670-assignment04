@@ -58,7 +58,7 @@ data %>%
                      limits= c(0,1250000))
   
   
-#The first graph informs the number of people who are unable to work due to COVID from 2020 to 2022 February. The respondents reported yes if they are unable to work during the previous four weeks because their employer shut down or lost business due to the pandemic. The bar chart tells that more respondents reported being unable to work in 2020 compared to 2021. In 2021, more people reported that Covid is not deferring them from working. This graph informs policies related to retaining workforce in the pandemic and how much does covid stop people from working.    
+#The first graph informs the number of people who are unable to work due to COVID from 2020 to 2022 January. The respondents reported yes if they are unable to work during the previous four weeks because their employer shut down or lost business due to the pandemic. The bar chart tells that more respondents reported being unable to work in 2020 compared to 2021. In 2021, more people reported that Covid is not deferring them from working. This graph informs policies related to retaining workforce in the pandemic and how much does covid stop people from working.    
 
 
 
@@ -66,13 +66,83 @@ data %>%
 ## Grpah 2
 ```{r}
 
+data %>% 
+  filter( CTCCRD != 999999 & INCTOT != 9999999990) %>%
+  filter(INCTOT < 500000) %>%
+  mutate(inlabor = if_else(LABFORCE == 1, "No" ,"Yes")) %>%
+  ggplot() + 
+  geom_point(mapping = aes(x= CTCCRD, y = INCTOT, color = inlabor))+
+  scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
+  labs(title = "Individual Income and Child Tax Creditr" ,
+       subtitle = "Point cart presenting relationship between income and CTC with labor status",
+       caption = "Data source:IPUMS CPS"
+  )+ 
+  ylab("Individual Income Level in $")+
+  xlab("Child Tax Credit received")+
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+
+#This graph informs the relationship between the child Tax received and individual income levels among respondents. The graph also present whether the respondents are in labor force or not. We can tell from the graph that to what extent the people receiving child tax credit are in labor force in respect to individual income levels. Related policy topic is how CTC is associated with working behavior and income level. This data graph shows that people receiving child tax credit are mostly among people earning less than $100,000 annually and unemployed. Most people receive $0 to $10000 of CTC.    
+
 
 
 
 
 ```
+##  Graph 3
+```{r}
+data%>%
+  filter(AGE>15)%>%
+  filter(LABFORCE == 2)%>%
+  filter(INCTOT != 999999999 )%>%
+  filter(CTCCRD<999999&CTCCRD>0)%>%
+  filter(RACE<=652)%>%
+  mutate(race = case_when(
+    RACE == 100 ~ "White",
+    RACE == 200 ~ "Black",
+    RACE == 300 ~ "Native American",
+    RACE == 651| RACE == 652 ~ "Asian and pacific islanders",
+    TRUE ~ "Others"
+
+  )
+         )%>%
+  group_by(race)%>%
+  mutate(meanCTCCRD = mean(CTCCRD))%>%
+  ggplot()+
+  geom_col(mapping = aes(x = race, y=meanCTCCRD))+
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))+
+  scale_y_continuous(limits = c(0, 7000)) +
+   labs(title = "CTC received by race" ,
+       subtitle = "Colum chart of CTC received by race",
+       caption = "Data source:IPUMS CPS"
+  )+ 
+  ylab("Average CTC received in $")+
+  xlab("Race")
+
+#This graph shows the difference in child tax credit received by different racial groups. This graph indicates that native american receive the most child tax credit followed by Asian and Black. White people receive the least amount of child tax credit. Since child tax credit is closely related to socio-economic status, which means better-off people tend to receive less holding the number of children constant. Therefore, the graph indirectly shows the income difference. Native American perhaps get more credit due to their relative lower income. This information is helpful when the authority makes redistribution policies. For the sake of equity, more sources should be spent in places where native american live such as Indian reservation.
+  
+  
+
+```
+## Graph 4 
+```{r}
+data %>%
+  filter(INCTOT != 999999999 )%>%
+  filter(INCTOT < 500000) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = AGE, y = INCTOT))+
+  labs(title = "Total income earned by age group in 2020 and 2021",
+       subtitle = "colum chart on total income earned by age group",
+       caption = "Data source:IPUMS CPS") +
+  ylab("Income level in million$")+
+  facet_wrap(~ YEAR)+
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))+
+  scale_y_continuous(labels = function(y)y/ 1000000)
+  
+#This graph shows that comparing with 2020, middle-age people who are between 40 to 50 tend to earn more in 2021. This could possibly mean that the unemployment wave caused by the pandemic is being reconciled. Middle-age people who were unemployed in 2020 are starting to get back to the labor force. The shape of the graph is meaningful because it could inform us about the wealth distribution. If young people earn the same or even less, it could possibly mean that economy is down and need incentives.
+  
 
 
+```
 
 
 
