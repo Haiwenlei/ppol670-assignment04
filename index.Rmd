@@ -19,11 +19,11 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 
 ```
 
-#source of data 
+### source of data 
 [IPUMS CPS](https://cps.ipums.org/cps/)
 
 
-#SSH screenshot 
+### SSH screenshot 
 ![SSH](stretch part1 .jpg)
 
 
@@ -37,7 +37,33 @@ data <- read_ipums_micro(ddi)
 
 ```
 
+## Graph 1 
+```{r}
+library(ggplot2)
+data %>% 
+  filter(COVIDUNAW != 99) %>%
+  mutate(ubwcvd = if_else(COVIDUNAW == 1, "No" ,"Yes")) %>%
+  ggplot(mapping= aes(x = ubwcvd)) + 
+  geom_bar() +
+  geom_text(stat='count', aes(label=(..count..)), vjust=-0.5, size = 3) + 
+  facet_wrap(~YEAR) +
+  labs(title = "The number of people unable to work due to COVID by year" ,
+       subtitle = "Bar chart counting on number of people",
+       caption = "Data source:IPUMS CPS"
+  )+ 
+  ylab("Number of people in thousands")+
+  xlab("Unable to work due to COVID") + 
+  scale_y_continuous(labels = function(y)y/ 1000,
+                     breaks = seq(0, 1250000,250000),
+                     limits= c(0,1250000))
+  
+  
+#The first graph informs the number of people who are unable to work due to COVID from 2020 to 2022 February. The respondents reported yes if they are unable to work during the previous four weeks because their employer shut down or lost business due to the pandemic. The bar chart tells that more respondents reported being unable to work in 2020 compared to 2021. In 2021, more people reported that Covid is not deferring them from working. This graph informs policies related to retaining workforce in the pandemic and how much does covid stop people from working.    
 
+
+
+```
+## Grpah 2
 ```{r}
 
 
@@ -45,7 +71,6 @@ data <- read_ipums_micro(ddi)
 
 
 ```
-
 
 
 
