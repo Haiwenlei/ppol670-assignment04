@@ -171,6 +171,13 @@ pre code {
 
 
 <p>#source of data <a href="https://cps.ipums.org/cps/">IPUMS CPS</a></p>
+<pre class="r"><code>library(ggplot2)
+library (tidyverse)
+library(ipumsr)
+ddi &lt;- read_ipums_ddi(&quot;data/cps_00002.xml&quot;)
+data &lt;- read_ipums_micro(ddi)</code></pre>
+<pre><code>## Use of data from IPUMS CPS is subject to conditions including that users should
+## cite the data appropriately. Use command `ipums_conditions()` for more details.</code></pre>
 <div id="r-markdown" class="section level2">
 <h2>R Markdown</h2>
 <p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>

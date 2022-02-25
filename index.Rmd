@@ -7,7 +7,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
 ```
 ```{r include = FALSE}
 def.chunk.hook  <- knitr::knit_hooks$get("chunk")
@@ -21,7 +22,14 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 #source of data 
 [IPUMS CPS](https://cps.ipums.org/cps/)
 
+```{r}
+library(ggplot2)
+library (tidyverse)
+library(ipumsr)
+ddi <- read_ipums_ddi("data/cps_00002.xml")
+data <- read_ipums_micro(ddi)
 
+```
 
 
 
